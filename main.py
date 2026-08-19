@@ -86,7 +86,7 @@ while True:
             print(f"=====================")
             print()
             print("ir para esquerda [e] ou direita [d]?")
-            eventos=["evento_1", "evento_2", "evento_3", "evento_4", "evento_5", "evento_6", "evento_7", "evento_8", "evento_9", "evento_10", "evento_1", "evento_2", "evento_3", "evento_4", "evento_5", "evento_6", "evento_7", "evento_8", "evento_9", "evento_10", "evento_11", "evento_12", "evento_13", "evento_14", "evento_15", "evento_16", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17"]
+            eventos=["evento_1", "evento_2", "evento_3", "evento_4", "evento_5", "evento_6", "evento_7", "evento_8", "evento_9", "evento_10", "evento_1", "evento_2", "evento_3", "evento_4", "evento_5", "evento_6", "evento_7", "evento_8", "evento_9", "evento_10", "evento_11", "evento_12", "evento_13", "evento_14", "evento_15", "evento_16", "evento_17"]
             esquerda=random.choice(eventos)
             direita=random.choice(eventos)
             ladocontinuar = input("[e/d] >_ ").strip().lower()
