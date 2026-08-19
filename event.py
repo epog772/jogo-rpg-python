@@ -1,4 +1,5 @@
 import random
+import os
 
 def sorte(sorte):
     if random.random() < 0.10:
@@ -36,7 +37,7 @@ def punicao_fuga(hp, atk, shld, hpmax, turno, inventario, chance=0.4):
     return hp, atk, shld, hpmax, inventario
 
 
-def evento_1(hp, atk, shld, hpmax, turno, inventario):
+def evento_1(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você encontra uma fonte brilhante no meio do caminho.")
     print("[1] beber da fonte")
     print("[2] ignorar e seguir em frente")
@@ -49,13 +50,14 @@ def evento_1(hp, atk, shld, hpmax, turno, inventario):
         print("você segue seu caminho sem se arriscar.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_2(hp, atk, shld, hpmax, turno, inventario):
+def evento_2(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("um bandido salta das sombras!")
     print("[1] lutar")
     print("[2] fugir")
+    moeda_ganha = 0
     escolha = input(">_ ").strip()
     if escolha == "1":
         dano = escalar(sorte(max(0, random.randint(5, 20) - shld)), turno)
@@ -63,17 +65,19 @@ def evento_2(hp, atk, shld, hpmax, turno, inventario):
         ganho_atk = sorte(random.randint(1, 3))
         hp -= dano
         atk += ganho_atk
-        print(f"você venceu a luta. {-dano:+} de vida, {ganho_atk:+} de ataque.")
+        moeda_ganha = random.randint(1, 50)
+        moeda += moeda_ganha
+        print(f"você venceu a luta. {-dano:+} de vida, {ganho_atk:+} de ataque, {moeda_ganha:+} de dinheiro.")
     else:
         dano = escalar(sorte(random.randint(5, 10)), turno)
         hp -= dano
         print(f"você foge. {-dano:+} de vida.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_3(hp, atk, shld, hpmax, turno, inventario):
+def evento_3(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("um comerciante misterioso oferece uma troca.")
     print("[1] trocar vida max por ataque")
     print("[2] trocar ataque por defesa")
@@ -95,10 +99,10 @@ def evento_3(hp, atk, shld, hpmax, turno, inventario):
         print("você recusa a oferta e segue em frente.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_4(hp, atk, shld, hpmax, turno, inventario):
+def evento_4(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você encontra um local seguro para descansar.")
     print("[1] descansar (recupera vida, perde um turno)")
     print("[2] continuar andando")
@@ -111,25 +115,30 @@ def evento_4(hp, atk, shld, hpmax, turno, inventario):
         print("você decide não perder tempo.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_5(hp, atk, shld, hpmax, turno, inventario):
+def evento_5(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("uma criatura selvagem rosna na sua direção.")
     print("[1] atacar primeiro")
     print("[2] tentar se defender")
     print("[3] correr")
+    moeda_ganha = 0
     escolha = input(">_ ").strip()
     if escolha == "1":
         dano = escalar(sorte(max(0, random.randint(10, 25) - shld)), turno)
         dano = reduzir_por_atk(dano, atk)
         hp -= dano
-        print(f"{-dano:+} de vida.")
+        moeda_ganha = random.randint(1, 50)
+        moeda += moeda_ganha
+        print(f"{-dano:+} de vida, {moeda_ganha:+} de dinheiro.")
     elif escolha == "2":
         dano = escalar(sorte(max(0, random.randint(5, 15) - shld * 2)), turno)
         dano = reduzir_por_atk(dano, atk)
         hp -= dano
-        print(f"{-dano:+} de vida.")
+        moeda_ganha += random.randint(1, 50)
+        moeda += moeda_ganha
+        print(f"{-dano:+} de vida, {moeda_ganha:+} de dinheiro.")
     else:
         chance = random.random()
         if chance > 0.5:
@@ -140,10 +149,10 @@ def evento_5(hp, atk, shld, hpmax, turno, inventario):
             print(f"{-dano:+} de vida.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_6(hp, atk, shld, hpmax, turno, inventario):
+def evento_6(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você encontra uma encruzilhada com símbolos estranhos.")
     print("[1] seguir o caminho da esquerda (arriscado)")
     print("[2] seguir o caminho da direita (seguro)")
@@ -161,10 +170,10 @@ def evento_6(hp, atk, shld, hpmax, turno, inventario):
         print("nada de interessante acontece, mas você está a salvo.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_7(hp, atk, shld, hpmax, turno, inventario):
+def evento_7(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("um curandeiro viajante oferece ajuda.")
     print("[1] pedir cura")
     print("[2] pedir fortalecimento (defesa)")
@@ -182,32 +191,35 @@ def evento_7(hp, atk, shld, hpmax, turno, inventario):
         print("você agradece, mas segue seu caminho.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_8(hp, atk, shld, hpmax, turno, inventario):
+def evento_8(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("um guerreiro rival te desafia para um duelo.")
     print("[1] aceitar o duelo")
-    print("[2] recusar (perde reputação, sem efeito real)")
+    print("[2] recusar (perde respeito)")
+    moeda_ganha = 0
     escolha = input(">_ ").strip()
     if escolha == "1":
         dano = escalar(sorte(max(0, random.randint(15, 30) - shld)), turno)
         dano = reduzir_por_atk(dano, atk)
         hp -= dano
+        moeda_ganha += random.randint(1, 50)
+        moeda += moeda_ganha
         if hp > 0:
             ganho = sorte(random.randint(2, 5))
             atk += ganho
-            print(f"{-dano:+} de vida, {ganho:+} de ataque.")
+            print(f"{-dano:+} de vida, {ganho:+} de ataque, {moeda_ganha:+} de dinheiro.")
         else:
-            print(f"{-dano:+} de vida.")
+            print(f"{-dano:+} de vida, {moeda_ganha:+} de dinheiro.")
     else:
         print("você recusa e segue seu caminho, um pouco humilhado.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_9(hp, atk, shld, hpmax, turno, inventario):
+def evento_9(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você encontra um poço antigo.")
     print("[1] jogar uma moeda e fazer um pedido")
     print("[2] ignorar")
@@ -233,10 +245,10 @@ def evento_9(hp, atk, shld, hpmax, turno, inventario):
         print("você não confia em poços estranhos.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_10(hp, atk, shld, hpmax, turno, inventario):
+def evento_10(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você pisa em uma armadilha de caçador escondida!")
     print("[1] tentar se soltar rapidamente")
     print("[2] se soltar com calma")
@@ -250,10 +262,10 @@ def evento_10(hp, atk, shld, hpmax, turno, inventario):
         hp -= dano
         print(f"{-dano:+} de vida.")
     atk = max(1, atk)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_11(hp, atk, shld, hpmax, turno, inventario):
+def evento_11(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você encontra uma árvore caída, cheia de madeira boa.")
     print("[1] coletar madeira")
     print("[2] ignorar")
@@ -266,10 +278,10 @@ def evento_11(hp, atk, shld, hpmax, turno, inventario):
     else:
         print("você segue seu caminho.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_12(hp, atk, shld, hpmax, turno, inventario):
+def evento_12(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("há um monte de pedras soltas no chão.")
     print("[1] coletar pedras")
     print("[2] ignorar")
@@ -282,10 +294,10 @@ def evento_12(hp, atk, shld, hpmax, turno, inventario):
     else:
         print("você segue seu caminho.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_13(hp, atk, shld, hpmax, turno, inventario):
+def evento_13(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você avista ervas medicinais crescendo por perto.")
     print("[1] colher ervas")
     print("[2] ignorar")
@@ -298,10 +310,10 @@ def evento_13(hp, atk, shld, hpmax, turno, inventario):
     else:
         print("você segue seu caminho.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_14(hp, atk, shld, hpmax, turno, inventario):
+def evento_14(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você encontra fragmentos de metal enferrujado, mas usável.")
     print("[1] coletar metal")
     print("[2] ignorar")
@@ -314,10 +326,10 @@ def evento_14(hp, atk, shld, hpmax, turno, inventario):
     else:
         print("você segue seu caminho.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_15(hp, atk, shld, hpmax, turno, inventario):
+def evento_15(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("um brilho estranho chama sua atenção entre as pedras.")
     print("[1] investigar")
     print("[2] ignorar")
@@ -333,10 +345,10 @@ def evento_15(hp, atk, shld, hpmax, turno, inventario):
     else:
         print("você segue seu caminho.")
         hp, atk, shld, hpmax, inventario = punicao_fuga(hp, atk, shld, hpmax, turno, inventario)
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
 
 
-def evento_16(hp, atk, shld, hpmax, turno, inventario):
+def evento_16(hp, atk, shld, hpmax, turno, inventario, moeda):
     print("você para para trabalhar nos materiais que carrega.")
     print(f"inventário: {inventario if inventario else 'vazio'}")
     print("[1] poção de cura (2x erva) -> +25 vida")
@@ -375,7 +387,67 @@ def evento_16(hp, atk, shld, hpmax, turno, inventario):
     else:
         print("você não tem materiais suficientes para isso.")
 
-    return hp, atk, shld, hpmax, inventario
+    return hp, atk, shld, hpmax, inventario, moeda
+
+def evento_17(hp, atk, shld, hpmax, turno, inventario, moeda):
+    os.system('cls' if os.name=='nt' else 'clear')
+    print("""
+    #
+    #                        #@* %@ @@@                                           
+    #                    :-% #%*@@@@@@                    @@@%@@-                 
+    #                    -+-+@#      @@@@              @@@    @+@=..               
+    #                    *=*:         @@@            @@@@@      %@@-#@#              
+    #                    @+@           =*=            @%@        .@.@              
+    #                    @+@         +#= *            @:@          #@#              
+    #                    *%=@@=     # +*=            @*@#         %@%                 
+    #                       @+@+ %+#+                  @@@@@     @ @                 
+    #                        @@@=&                       #@#@@@@%@%                 
+    #                                                        @@@@                      
+    #                                                                                
+    #                                placeholder                                                    
+    #                                                                                
+    #                                                                                
+    #        *%*                                                                      
+    #        % %                                                             @@@    
+    #       ****                                                           =@=@    
+    #        %=@=                                                       +#=@@@    
+    #        *@*+                                                    %@* **=     
+    #        =+=                                                  @@@@ %#+       
+    #          %@                                             #@# @ @%@%         
+    #           @@@@                                      =@@@@@@@@            
+    #            @ @++:                            @@@++@+@ #@#                
+    #            @@@:=: =@@@@@@@@=..._._.__.._.---%%@@#@#=@@@                      
+    #                -++: *@-+.=.%%=.::$;@!#*%$@#!@#$%@@@+                             
+    #                    =@@@@@@@@=.::;%;@#;    
+    #---------------------------------------------------------------------------------------------
+    # [1] amuleto de vida maxima (custo: 600)
+    # [2] amuleto de ataque (custo: 270)
+    # [3] amuleto de defesa (custo: 412)
+    # [4] sair
+    """)
+    print(f"dinheiro = {moeda}")
+    escolha = input(">_ ").strip()
+
+    if escolha == "1" and moeda >= 600:
+        hpmax += 25
+        moeda -= 600
+        print("+25 de vida maxima")
+    elif escolha == "2" and moeda >= 270:
+        atk += 10
+        moeda -= 270
+        print("+10 de ataque")
+    elif escolha == "3" and moeda >= 412:
+        shld += 5
+        moeda -= 412
+        print("+5 de defesa")
+    elif escolha == "4":
+        print("você sai sem comprar nada")
+    else:
+        print("você ta pobre.")
+    
+    return hp, atk, shld, hpmax, inventario, moeda
+
+
 
 eventos_map = {
     "evento_1": evento_1,
@@ -394,4 +466,5 @@ eventos_map = {
     "evento_14": evento_14,
     "evento_15": evento_15,
     "evento_16": evento_16,
+    "evento_17": evento_17,
 }

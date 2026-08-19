@@ -69,6 +69,7 @@ while True:
             print("escolha invalida")
             continue
         inventario=[]
+        moeda=0
         while hp > 0 and hpmax > 0:
             if hp > hpmax:
                 hp = hpmax
@@ -80,11 +81,12 @@ while True:
             print(f"$ vida = ({hp}/{hpmax})")
             print(f"$ ataque = {atk}")
             print(f"$ defesa = {shld}")
+            print(f"$ dinheiro = {moeda}")
             print(f"$ inventario = {inventario}")
             print(f"=====================")
             print()
             print("ir para esquerda [e] ou direita [d]?")
-            eventos=["evento_1", "evento_2", "evento_3", "evento_4", "evento_5", "evento_6", "evento_7", "evento_8", "evento_9", "evento_10", "evento_1", "evento_2", "evento_3", "evento_4", "evento_5", "evento_6", "evento_7", "evento_8", "evento_9", "evento_10", "evento_11", "evento_12", "evento_13", "evento_14", "evento_15", "evento_16"]
+            eventos=["evento_1", "evento_2", "evento_3", "evento_4", "evento_5", "evento_6", "evento_7", "evento_8", "evento_9", "evento_10", "evento_1", "evento_2", "evento_3", "evento_4", "evento_5", "evento_6", "evento_7", "evento_8", "evento_9", "evento_10", "evento_11", "evento_12", "evento_13", "evento_14", "evento_15", "evento_16", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17", "evento_17"]
             esquerda=random.choice(eventos)
             direita=random.choice(eventos)
             ladocontinuar = input("[e/d] >_ ").strip().lower()
@@ -96,14 +98,14 @@ while True:
                 continue
             print()
             hp_antes = hp
-            hp, atk, shld, hpmax, inventario = event.eventos_map[evatual](hp, atk, shld, hpmax, turno, inventario)
+            hp, atk, shld, hpmax, inventario, moeda = event.eventos_map[evatual](hp, atk, shld, hpmax, turno, inventario, moeda)
             if escolhaextra == "2" and hp <= 0 and hp_antes > 1:
                 hp = 1
                 print("\nvocê sobrevive por pouco!")
             input("\npressione enter para continuar...")
             turno += 1
         if hp <= 0:
-            print(r"""
+            print("""\033[38;2;255;0;0m
                ('-.     _   .-')       ('-.                           (`-.      ('-.  _  .-')   
               ( OO ).-.( '.( OO )_   _(  OO)                        _(OO  )_  _(  OO)( \( -O )  
   ,----.      / . --. / ,--.   ,--.)(,------.       .-'),-----. ,--(_/   ,. \(,------.,------.  
@@ -113,7 +115,7 @@ while True:
 (|  | '. (_/  |  .-.  | |  |   |  |  |  .--'         \ |  | |  |   \     /__) |  .--' |  .  '.' 
  |  '--'  |   |  | |  | |  |   |  |  |  `---.         `'  '-'  '    \   /     |  `---.|  |\  \  
   `------'    `--' `--' `--'   `--'  `------'           `-----'      `-'      `------'`--' '--' 
-            """)
+            \033[0m""")
             print(f"\nvocê morreu no turno {turno}.")
             input("pressione enter para continuar...")
     else:
